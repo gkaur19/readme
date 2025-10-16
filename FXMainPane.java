@@ -1,127 +1,106 @@
-package CryptoManager;
+package DataManager;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+/**
+* This panel is the basic panel, inside which other panels are placed.
+* Before beginning to implement, design the structure of your GUI in order to
+* understand what panels go inside which ones, and what buttons or other components
+* go in which panels.
+* @author
+ralexander
+*
+*/
+//make the main panel's layout be a VBox
+public class FXMainPane extends VBox {
+//student Task #2:
+// declare five buttons, a label, and a textfield
+	private Button helloButton, howdyButton, chineseButton, clearButton, exitButton;
+	private Label feedbackLabel;
+	private TextField feedbackField;
+	
+// declare two HBoxes
+	private HBox hBoxButtons, hBoxFeedback;
+    
+//student Task #4:
+// declare an instance of DataManager
+	private DataManager dataManager;
+/**
+* The MainPanel constructor sets up the entire GUI in this approach. Remember to
+* wait to add a component to its containing component until the container has
+* been created. This is the only constraint on the order in which the following
+* statements appear.
+*/
+FXMainPane() {
+//student Task #2:
+// instantiate the buttons, label, and textfield
+	helloButton = new Button("Hello");
+    howdyButton = new Button("Howdy");
+    chineseButton = new Button("Chinese");
+    clearButton = new Button("Clear");
+    exitButton = new Button("Exit");
+    feedbackLabel = new Label("Feedback:");
+    feedbackField = new TextField();
+// instantiate the HBoxes
+	hBoxButtons = new HBox();
+    hBoxFeedback = new HBox();
+//student Task #4:
+// instantiate the DataManager instance
+    dataManager = new DataManager();
+// set margins and set alignment of the components
+    hBoxButtons.setAlignment(Pos.CENTER);
+    hBoxFeedback.setAlignment(Pos.CENTER);
+    VBox.setMargin(hBoxButtons, new Insets(10));
+    VBox.setMargin(hBoxFeedback, new Insets(10));
+//student Task #3:
+// add the label and textfield to one of the HBoxes
+	hBoxFeedback.getChildren().addAll(feedbackLabel, feedbackField);
+// add the buttons to the other HBox
+	  hBoxButtons.getChildren().addAll(helloButton, howdyButton, chineseButton, clearButton, exitButton);
+// add the HBoxes to this FXMainPanel (a VBox)
+	  this.getChildren().addAll(hBoxFeedback, hBoxButtons);
 
-public class FXMainPane extends BorderPane {
+//Task #4:
+// create a private inner class to handle the button clicks
+helloButton.setOnAction(new ButtonHandler());
+howdyButton.setOnAction(new ButtonHandler());
+chineseButton.setOnAction(new ButtonHandler());
+clearButton.setOnAction(new ButtonHandler());
+exitButton.setOnAction(new ButtonHandler());
+}
+//Task #4:
+//create a private inner class to handle the button clicks
+private class ButtonHandler implements EventHandler<ActionEvent> {
+    @Override
+    public void handle(ActionEvent event) {
+        Object source = event.getSource();
 
-	private TextField plainTextTextField, inputForEncryptionTextField, encryptedStringTextField3, decryptedTextField4;
-	private Label plainTextLabel, descriptionForInputLabel, encryptedLabel3, decryptedLabel4;
-	private RadioButton radioButton1, radioButton2, radioButton3;
-	private Button encryption, decryption, clearButton, exitButton;
-
-	public FXMainPane() {
-		buildUI();
-		addButtonActions();
-	}
-
-	private void buildUI() {
-		Insets inset = new Insets(10);
-
-		// Text Fields
-		plainTextTextField = new TextField();
-		inputForEncryptionTextField = new TextField();
-		encryptedStringTextField3 = new TextField();
-		decryptedTextField4 = new TextField();
-
-		// Labels
-		plainTextLabel = new Label("Enter plain-text string to encrypt");
-		descriptionForInputLabel = new Label("Enter a key (keyword for Vigenere and Playfair; shift number for Caesar)");
-		encryptedLabel3 = new Label("Encrypted string");
-		decryptedLabel4 = new Label("Decrypted string");
-
-		// Radio Buttons
-		radioButton1 = new RadioButton("Vigenere Cipher");
-		radioButton2 = new RadioButton("Playfair Cipher");
-		radioButton3 = new RadioButton("Caesar Cipher");
-
-		ToggleGroup group = new ToggleGroup();
-		radioButton1.setToggleGroup(group);
-		radioButton2.setToggleGroup(group);
-		radioButton3.setToggleGroup(group);
-		radioButton1.setSelected(true);
-
-		// Cipher Selection Box
-		HBox topBox = new HBox(20, radioButton1, radioButton2, radioButton3);
-		topBox.setAlignment(Pos.CENTER);
-		topBox.setPadding(inset);
-
-		// Center Fields
-		VBox centerBox = new VBox(10,
-				plainTextLabel, plainTextTextField,
-				encryptedLabel3, encryptedStringTextField3,
-				decryptedLabel4, decryptedTextField4,
-				descriptionForInputLabel, inputForEncryptionTextField
-		);
-		centerBox.setPadding(inset);
-
-		// Buttons
-		encryption = new Button("Encrypt");
-		decryption = new Button("Decrypt");
-		clearButton = new Button("Clear");
-		exitButton = new Button("Exit");
-
-		HBox bottomBox = new HBox(20, encryption, decryption, clearButton, exitButton);
-		bottomBox.setAlignment(Pos.CENTER);
-		bottomBox.setPadding(inset);
-
-		// Set layout
-		setTop(topBox);
-		setCenter(centerBox);
-		setBottom(bottomBox);
-	}
-
-	private void addButtonActions() {
-		exitButton.setOnAction(e -> Platform.exit());
-
-		clearButton.setOnAction(e -> {
-			plainTextTextField.clear();
-			inputForEncryptionTextField.clear();
-			encryptedStringTextField3.clear();
-			decryptedTextField4.clear();
-		});
-
-		encryption.setOnAction(e -> {
-			try {
-				String plain = plainTextTextField.getText().toUpperCase();
-				String key = inputForEncryptionTextField.getText().toUpperCase();
-				String result = "";
-
-				if (radioButton1.isSelected()) {
-					result = CryptoManager.vigenereEncryption(plain, key);
-				} else if (radioButton2.isSelected()) {
-					result = CryptoManager.playfairEncryption(plain, key);
-				} else {
-					int shift = Integer.parseInt(key);
-					result = CryptoManager.caesarEncryption(plain, shift);
-				}
-				encryptedStringTextField3.setText(result);
-			} catch (Exception ex) {
-				encryptedStringTextField3.setText("Error: " + ex.getMessage());
-			}
-		});
-
-		decryption.setOnAction(e -> {
-			try {
-				String encrypted = encryptedStringTextField3.getText().toUpperCase();
-				String key = inputForEncryptionTextField.getText().toUpperCase();
-				String result = "";
-
-				if (radioButton1.isSelected()) {
-					result = CryptoManager.vigenereDecryption(encrypted, key);
-				} else if (radioButton2.isSelected()) {
-					result = CryptoManager.playfairDecryption(encrypted, key);
-				} else {
-					int shift = Integer.parseInt(key);
-					result = CryptoManager.caesarDecryption(encrypted, shift);
-				}
-				decryptedTextField4.setText(result);
-			} catch (Exception ex) {
-				decryptedTextField4.setText("Error: " + ex.getMessage());
-			}
-		});
-	}
+        if (source == helloButton) {
+            feedbackField.setText(dataManager.getHello());
+        } else if (source == howdyButton) {
+           feedbackField.setText(dataManager.getHowdy());
+        } else if (source == chineseButton) {
+            feedbackField.setText(dataManager.getChinese());
+        } else if (source == clearButton) {
+            feedbackField.setText("");
+        } else if (source == exitButton) {
+            Platform.exit();
+            System.exit(0);
+        }
+    }
+}
 }
